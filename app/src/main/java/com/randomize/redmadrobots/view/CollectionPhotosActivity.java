@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.adapters.SearchPhotoRecyclerAdapter;
+import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
 import com.randomize.redmadrobots.models.Photo;
 
@@ -25,7 +25,7 @@ public class CollectionPhotosActivity extends AppCompatActivity {
 
     private TextView txtDescription, txtCuratedBy;
     private RecyclerView recyclerView;
-    private SearchPhotoRecyclerAdapter adapter;
+    private ListPhotosRecyclerAdapter adapter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +43,7 @@ public class CollectionPhotosActivity extends AppCompatActivity {
         txtDescription.setText(description);
         txtCuratedBy.setText(curated);
 
-        adapter = new SearchPhotoRecyclerAdapter();
+        adapter = new ListPhotosRecyclerAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         NetworkService.getInstance()
