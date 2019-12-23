@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RedMadRobots</string>
+    <string name="random_photo">Random photo to Unplash: </string>
+    <string name="search_button_name">Search</string>
+    <string name="collections_button_name">Collections</string>
+    <string name="collections_title">Коллекции</string>
+</resources>
