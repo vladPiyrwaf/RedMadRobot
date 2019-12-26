@@ -26,6 +26,9 @@ public class Photo {
     @SerializedName("color")
     @Expose
     private String color;
+    @SerializedName("description")
+    @Expose
+    private String description;
     @SerializedName("downloads")
     @Expose
     private Integer downloads;
@@ -73,6 +76,10 @@ public class Photo {
 
     public String getColor() {
         return color;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Integer getDownloads() {

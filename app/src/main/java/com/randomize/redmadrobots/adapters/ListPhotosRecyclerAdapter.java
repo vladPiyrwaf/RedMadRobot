@@ -52,6 +52,10 @@ public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhoto
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
     }
 
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount() {

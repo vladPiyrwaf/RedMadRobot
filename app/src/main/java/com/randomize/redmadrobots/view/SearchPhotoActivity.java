@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.adapters.SearchPhotoRecyclerAdapter;
+import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
 import com.randomize.redmadrobots.models.Photo;
 import com.randomize.redmadrobots.models.SearchResults;
@@ -26,7 +26,7 @@ public class SearchPhotoActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
-    private SearchPhotoRecyclerAdapter adapter;
+    private ListPhotosRecyclerAdapter adapter;
     private EditText edSearchPhotos;
     private Button btnSearchPhotos;
 
@@ -41,7 +41,7 @@ public class SearchPhotoActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewSearchPhoto);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        adapter = new SearchPhotoRecyclerAdapter();
+        adapter = new ListPhotosRecyclerAdapter(this);
         recyclerView.setAdapter(adapter);
 
         btnSearchPhotos.setOnClickListener(new View.OnClickListener() {

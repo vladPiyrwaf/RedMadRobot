@@ -106,5 +106,4 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                     }
                 });
     }
-
 }
