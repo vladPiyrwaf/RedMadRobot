@@ -17,7 +17,7 @@ public interface UnplashApi {
 
     @GET("photos/random")
     Call<Photo> getRandomPhoto(@Query("page") Integer page, @Query("per_page") Integer perPage,
-                                @Query("order_by") String orderBy, @Query("client_id") String clientId);
+                               @Query("order_by") String orderBy, @Query("client_id") String clientId);
 
     @GET("search/photos")
     Call<SearchResults> searchPhotos(@Query("query") String query,
@@ -33,5 +33,8 @@ public interface UnplashApi {
 
     @GET("collections/{id}/photos")
     Call<List<Photo>> getCollectionPhotos(@Path("id") long id,
-            @Query("client_id") String clientId);
+                                          @Query("client_id") String clientId,
+                                          @Query("page") int page,
+                                          @Query("per_page") int perPage);
+
 }

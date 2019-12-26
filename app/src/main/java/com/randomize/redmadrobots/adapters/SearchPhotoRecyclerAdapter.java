@@ -6,13 +6,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.models.Photo;
+import com.randomize.redmadrobots.models.collections.Collection;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhotoRecyclerAdapter.ViewHolder> {
@@ -22,6 +25,19 @@ public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhoto
     public SearchPhotoRecyclerAdapter() {
         photos = new ArrayList<>();
     }
+
+    public void updateList(List<Photo> newList) {
+        List<Photo> oldList = new ArrayList<>(this.photos);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new PhotosDiffUtilCallBack(oldList, newList));
+        diffResult.dispatchUpdatesTo(this);
+        setPhotos(newList);
+
+    }
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos.addAll(photos);
+    }
+
 
     @NonNull
     @Override
@@ -36,10 +52,6 @@ public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhoto
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
     }
 
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {

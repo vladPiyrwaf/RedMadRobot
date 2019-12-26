@@ -12,9 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
+import com.randomize.redmadrobots.models.Photo;
 import com.randomize.redmadrobots.models.collections.Collection;
 import com.randomize.redmadrobots.view.CollectionPhotosActivity;
 import com.squareup.picasso.Picasso;
@@ -80,7 +82,8 @@ public class CollectionsPhotoRecyclerAdapter
                     .putExtra("id", collections.get(getAdapterPosition()).getId())
                     .putExtra("title", collections.get(getAdapterPosition()).getTitle())
                     .putExtra("description", collections.get(getAdapterPosition()).getDescription())
-                    .putExtra("curated", collections.get(getAdapterPosition()).getUser().getName());
+                    .putExtra("curated", collections.get(getAdapterPosition()).getUser().getName())
+                    .putExtra("total_photo", collections.get(getAdapterPosition()).getTotalPhotos());
             mContext.startActivity(intent);
 
         }
