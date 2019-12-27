@@ -33,7 +33,7 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
     public void setPhotos(List<Photo> dataToAdd) {
         PhotosDiffUtilCallBack diffUtilCallback =
                 new PhotosDiffUtilCallBack(photos, dataToAdd);
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, false);
         photos = dataToAdd;
         result.dispatchUpdatesTo(this);
     }
@@ -42,8 +42,8 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
         List<Photo> newData = new ArrayList<>(photos);
         newData.addAll(dataToAdd);
         PhotosDiffUtilCallBack diffUtilCallback = new PhotosDiffUtilCallBack(photos, newData);
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
-        photos = newData;
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, false);
+        photos.addAll(dataToAdd);
         result.dispatchUpdatesTo(this);
     }
 

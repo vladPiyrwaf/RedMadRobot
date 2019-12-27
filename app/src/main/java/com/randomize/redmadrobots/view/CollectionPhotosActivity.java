@@ -32,8 +32,13 @@ public class CollectionPhotosActivity extends AppCompatActivity {
 
     private long idCollection;
     private boolean loading = false;
-    private int pageCount = 2;
+    private int pageCount = 1;
     private static int totalPhoto;
+
+    //////////////////////////////////////////////////////////////
+    private boolean isLoading;
+    private int pastVisibleItems, visibleItemCount, totalItemCount, previous_total = 0;
+    private int view_threshold = 10;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,14 +74,16 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                 if (adapter.getItemCount() >= totalPhoto) {
                     Toast.makeText(CollectionPhotosActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (lastVisibleItemPosition == adapter.getItemCount() - 1) {
+                    if (lastVisibleItemPosition == adapter.getItemCount() - 1 && !loading) {
+                        Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
+                        + "getItemCount: " + (adapter.getItemCount() - 1));
                         loading = true;
-                        addData(pageCount++);
+                        addData(++pageCount);
+                        Log.d("pagecount", "pageCount: " + pageCount);
                     }
                 }
             }
         });
-
     }
 
     private void fetchData(final int pageCount) {
@@ -105,7 +112,6 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                 .enqueue(new Callback<List<Photo>>() {
                     @Override
                     public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
-                        Log.d("pages", "Page is number: " + pageCount);
                         List<Photo> photos = response.body();
                         adapter.addPhotos(photos);
                         loading = false;
