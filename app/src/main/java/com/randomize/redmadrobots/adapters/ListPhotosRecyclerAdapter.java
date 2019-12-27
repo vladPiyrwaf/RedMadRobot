@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
@@ -29,6 +30,23 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
         this.mContext = context;
     }
 
+    public void setPhotos(List<Photo> dataToAdd) {
+        PhotosDiffUtilCallback diffUtilCallback =
+                new PhotosDiffUtilCallback(photos, dataToAdd);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
+        photos = dataToAdd;
+        result.dispatchUpdatesTo(this);
+    }
+
+    public void addPhotos(List<Photo> dataToAdd) {
+        List<Photo> newData = new ArrayList<>(photos);
+        newData.addAll(dataToAdd);
+        PhotosDiffUtilCallback diffUtilCallback = new PhotosDiffUtilCallback(photos, newData);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
+        photos = newData;
+        result.dispatchUpdatesTo(this);
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,10 +60,6 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
     }
 
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {

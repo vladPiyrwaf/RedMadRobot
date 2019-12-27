@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .enqueue(new Callback<Photo>() {
                     @Override
                     public void onResponse(Call<Photo> call, Response<Photo> response) {
-                        Log.d("image", "onResponse: " + response.body().getUrls().getSmall());
                         photo = response.body();
                         Picasso.get().load(photo.getUrls().getSmall()).into(imageView);
                         Toast.makeText(MainActivity.this, photo.getId(), Toast.LENGTH_SHORT).show();

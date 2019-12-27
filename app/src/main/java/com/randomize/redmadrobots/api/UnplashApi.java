@@ -33,5 +33,7 @@ public interface UnplashApi {
 
     @GET("collections/{id}/photos")
     Call<List<Photo>> getCollectionPhotos(@Path("id") long id,
+            @Query("page") int page,
+            @Query("per_page") int perPage,
             @Query("client_id") String clientId);
 }
