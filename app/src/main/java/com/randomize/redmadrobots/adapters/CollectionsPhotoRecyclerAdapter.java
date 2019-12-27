@@ -12,9 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
+import com.randomize.redmadrobots.models.Photo;
 import com.randomize.redmadrobots.models.collections.Collection;
 import com.randomize.redmadrobots.view.CollectionPhotosActivity;
 import com.squareup.picasso.Picasso;

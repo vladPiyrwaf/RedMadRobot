@@ -18,6 +18,7 @@ import com.randomize.redmadrobots.view.PhotoDetailActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRecyclerAdapter.ViewHolder> {
@@ -60,6 +61,10 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
     }
 
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount() {

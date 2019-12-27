@@ -1,12 +1,8 @@
 package com.randomize.redmadrobots.view;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,7 +13,6 @@ import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
 import com.randomize.redmadrobots.models.Photo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -51,6 +46,7 @@ public class CollectionPhotosActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         String curated = getIntent().getStringExtra("curated");
         totalPhoto = getIntent().getIntExtra("total_photo", 0);
+
 
         txtDescription.setText(description);
         txtCuratedBy.setText(curated);
@@ -87,7 +83,6 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                 .enqueue(new Callback<List<Photo>>() {
                     @Override
                     public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
-                        Log.d("pages", "Page is number: " + pageCount);
                         List<Photo> photos = response.body();
                         adapter.setPhotos(photos);
                         loading = false;
