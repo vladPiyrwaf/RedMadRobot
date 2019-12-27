@@ -7,12 +7,12 @@ import com.randomize.redmadrobots.models.Photo;
 
 import java.util.List;
 
-public class PhotosDiffUtilCallback extends DiffUtil.Callback {
+public class PhotosDiffUtilCallBack extends DiffUtil.Callback {
 
     private final List<Photo> oldList;
     private final List<Photo> newList;
 
-    public PhotosDiffUtilCallback(List<Photo> oldList, List<Photo> newList) {
+    public PhotosDiffUtilCallBack(List<Photo> oldList, List<Photo> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }

@@ -18,7 +18,6 @@ import com.randomize.redmadrobots.view.PhotoDetailActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRecyclerAdapter.ViewHolder> {
@@ -32,8 +31,8 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
     }
 
     public void setPhotos(List<Photo> dataToAdd) {
-        PhotosDiffUtilCallback diffUtilCallback =
-                new PhotosDiffUtilCallback(photos, dataToAdd);
+        PhotosDiffUtilCallBack diffUtilCallback =
+                new PhotosDiffUtilCallBack(photos, dataToAdd);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
         photos = dataToAdd;
         result.dispatchUpdatesTo(this);
@@ -42,7 +41,7 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
     public void addPhotos(List<Photo> dataToAdd) {
         List<Photo> newData = new ArrayList<>(photos);
         newData.addAll(dataToAdd);
-        PhotosDiffUtilCallback diffUtilCallback = new PhotosDiffUtilCallback(photos, newData);
+        PhotosDiffUtilCallBack diffUtilCallback = new PhotosDiffUtilCallBack(photos, newData);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffUtilCallback, true);
         photos = newData;
         result.dispatchUpdatesTo(this);
@@ -59,11 +58,6 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRe
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Photo photo = photos.get(position);
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-        notifyDataSetChanged();
     }
 
     @Override
