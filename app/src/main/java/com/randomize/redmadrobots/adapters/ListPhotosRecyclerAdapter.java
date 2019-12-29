@@ -11,27 +11,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.models.Photo;
-import com.randomize.redmadrobots.models.collections.Collection;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhotoRecyclerAdapter.ViewHolder> {
+public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<ListPhotosRecyclerAdapter.ViewHolder> {
 
     private List<Photo> photos;
 
-    public SearchPhotoRecyclerAdapter() {
+    public  ListPhotosRecyclerAdapter() {
         photos = new ArrayList<>();
     }
 
     public void updateList(List<Photo> newList) {
-        List<Photo> oldList = new ArrayList<>(this.photos);
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new PhotosDiffUtilCallBack(oldList, newList));
+        PhotosDiffUtilCallBack photosDiffUtilCallBack = new PhotosDiffUtilCallBack(this.photos, newList);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(photosDiffUtilCallBack);
         diffResult.dispatchUpdatesTo(this);
         setPhotos(newList);
-
     }
 
     public void setPhotos(List<Photo> photos) {
@@ -50,11 +47,6 @@ public class SearchPhotoRecyclerAdapter extends RecyclerView.Adapter<SearchPhoto
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Photo photo = photos.get(position);
         Picasso.get().load(photo.getUrls().getSmall()).into(holder.imageView);
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-        notifyDataSetChanged();
     }
 
     @Override

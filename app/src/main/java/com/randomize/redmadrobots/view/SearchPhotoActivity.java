@@ -41,7 +41,7 @@ public class SearchPhotoActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewSearchPhoto);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        adapter = new ListPhotosRecyclerAdapter(this);
+        adapter = new ListPhotosRecyclerAdapter();
         recyclerView.setAdapter(adapter);
 
         btnSearchPhotos.setOnClickListener(new View.OnClickListener() {
