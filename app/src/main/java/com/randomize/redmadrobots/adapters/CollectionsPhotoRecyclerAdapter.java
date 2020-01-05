@@ -49,6 +49,11 @@ public class CollectionsPhotoRecyclerAdapter
         notifyItemRangeInserted(position, dataToAdd.size());
     }
 
+    public void clear(){
+        this.collections.clear();
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -56,6 +61,7 @@ public class CollectionsPhotoRecyclerAdapter
         if (viewType == ITEM) {
             return new CollectionViewHolder(layoutInflater.inflate(R.layout.item_collections, parent, false));
         } else if (viewType == LOADING_ELEMENT) {
+
             return new LoadingViewHolder(layoutInflater.inflate(R.layout.item_progress, parent, false));
         }
         return null;
@@ -70,6 +76,8 @@ public class CollectionsPhotoRecyclerAdapter
             viewHolder.txtTitle.setText(collection.getTitle());
             viewHolder.txtTotalPhoto.setText(collection.getTotalPhotos() + " photos");
             viewHolder.txtCuratedBy.setText("Curated by " + collection.getUser().getName());
+        } else {
+            ((LoadingViewHolder) holder).progressBar.setIndeterminate(true);
         }
     }
 

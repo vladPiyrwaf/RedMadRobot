@@ -9,9 +9,11 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.adapters.CollectionsPhotoRecyclerAdapter;
@@ -28,8 +30,11 @@ public class CollectionsFragment extends Fragment {
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
-    private CollectionsPhotoRecyclerAdapter photoRecyclerAdapter;
+    private CollectionsPhotoRecyclerAdapter collectionRecyclerAdapter;
     private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ConstraintLayout mNetworkErrorView;
+    private ConstraintLayout mNoResultView;
 
     private boolean loading = false;
     private int pageCount = 1;
@@ -37,17 +42,21 @@ public class CollectionsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_collections, container, false);
+        View view = inflater.inflate(R.layout.fragment_collections, container, false);
 
         progressBar = view.findViewById(R.id.progress_collections);
+        mNetworkErrorView = view.findViewById(R.id.network_error_view);
+        mNoResultView = view.findViewById(R.id.no_results_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewCollections);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_container_collection);
         recyclerView.setLayoutManager(layoutManager);
 
-        photoRecyclerAdapter = new CollectionsPhotoRecyclerAdapter(getActivity());
-        recyclerView.setAdapter(photoRecyclerAdapter);
+        collectionRecyclerAdapter = new CollectionsPhotoRecyclerAdapter(getActivity());
+        recyclerView.setAdapter(collectionRecyclerAdapter);
 
         firstLoadData(1);
+
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -56,9 +65,9 @@ public class CollectionsFragment extends Fragment {
 
                 int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
 
-                if (lastVisibleItemPosition == photoRecyclerAdapter.getItemCount() - 1 && !loading) {
+                if (lastVisibleItemPosition == collectionRecyclerAdapter.getItemCount() - 1 && !loading) {
                     Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
-                            + "getItemCount: " + (photoRecyclerAdapter.getItemCount() - 1));
+                            + "getItemCount: " + (collectionRecyclerAdapter.getItemCount() - 1));
                     loading = true;
                     addData(++pageCount);
                     Log.d("pagecount", "pageCount: " + pageCount);
@@ -67,6 +76,12 @@ public class CollectionsFragment extends Fragment {
             }
         });
 
+        swipeRefreshLayout.setOnRefreshListener(()->{
+            pageCount = 1;
+            collectionRecyclerAdapter.clear();
+            firstLoadData(1);
+            swipeRefreshLayout.setRefreshing(false);
+        });
         return view;
     }
 
@@ -77,15 +92,18 @@ public class CollectionsFragment extends Fragment {
                 .enqueue(new Callback<List<Collection>>() {
                     @Override
                     public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
+                        mNetworkErrorView.setVisibility(View.GONE);
                         List<Collection> collections = response.body();
                         progressBar.setVisibility(View.GONE);
-                        photoRecyclerAdapter.addColletction(collections);
+                        collectionRecyclerAdapter.addColletction(collections);
                         loading = false;
                     }
 
                     @Override
                     public void onFailure(Call<List<Collection>> call, Throwable t) {
-
+                        mNetworkErrorView.setVisibility(View.VISIBLE);
+                        mNoResultView.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
     }
@@ -98,7 +116,8 @@ public class CollectionsFragment extends Fragment {
                     @Override
                     public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                         List<Collection> collections = response.body();
-                        photoRecyclerAdapter.setCollections(collections);
+                        collectionRecyclerAdapter.setCollections(collections);
+                        progressBar.setVisibility(View.GONE);
                         loading = false;
                     }
 

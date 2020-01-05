@@ -50,6 +50,7 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         photos.addAll(dataToAdd);
         final int position = this.photos.size();
         notifyItemRangeInserted(position, dataToAdd.size());
+
 //        result.dispatchUpdatesTo(this);
     }
 
@@ -101,10 +102,6 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             itemView.setOnClickListener(this);
         }
 
-        public void bindItem(Photo photo) {
-            Picasso.get().load(photo.getUrls().getSmall()).into(imageView);
-        }
-
         @Override
         public void onClick(View view) {
             Log.d("mind", "onClick: " + photos.get(getAdapterPosition()).getUrls().getSmall());
@@ -120,9 +117,11 @@ public class ListPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     class LoadingViewHolder extends RecyclerView.ViewHolder {
 
+        private ProgressBar loadBar;
+
         public LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
-            ProgressBar loadBar = itemView.findViewById(R.id.loadmore_progress);
+            loadBar = itemView.findViewById(R.id.loadmore_progress);
             loadBar.setIndeterminate(true);
         }
     }

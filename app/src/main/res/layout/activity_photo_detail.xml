@@ -1,64 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical">
-    <ImageView
-        android:id="@+id/image_detail_photo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:transitionName="photoScale"
-        android:scaleType="fitXY"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clipToPadding="false"
+    tools:context=".view.PhotoDetailActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-    <TextView
-        android:id="@+id/txt_detail_photo_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"/>
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <TextView
-        android:id="@+id/txt_detail_photo_width"
-        android:layout_width="match_parent"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_photo_detail"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"/>
+        android:layout_width="match_parent"
+        app:layout_scrollFlags="scroll|snap" />
 
-    <TextView
-        android:id="@+id/txt_detail_photo_height"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
-        android:drawablePadding="20dp"/>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/txt_detail_photo_url_full_size"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:text="url full size"
-        android:textSize="15sp"
-        android:layout_marginTop="5dp"/>
-    </LinearLayout>
-</LinearLayout>
+        android:scrollbars="none"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/image_detail_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:transitionName="photoScale"
+                android:scaleType="fitXY"
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+            <TextView
+                android:id="@+id/txt_detail_photo_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:textSize="15sp"
+                android:textColor="@color/primaryTextColor"/>
+
+            <TextView
+                android:id="@+id/txt_detail_photo_width"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:textSize="15sp"
+                android:textColor="@color/primaryTextColor"/>
+
+            <TextView
+                android:id="@+id/txt_detail_photo_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:drawablePadding="20dp"
+                android:textSize="15sp"
+                android:textColor="@color/primaryTextColor"/>
+
+            <TextView
+                android:id="@+id/txt_detail_photo_url_full_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textSize="15sp"
+                android:textColor="@color/primaryTextColor"/>
+
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

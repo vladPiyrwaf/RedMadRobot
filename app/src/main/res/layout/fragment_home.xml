@@ -10,7 +10,8 @@
         android:layout_marginTop="25dp"
         android:layout_marginBottom="20dp"
         android:text="@string/random_photo"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textColor="@color/primaryTextColor"/>
     <ImageView
         android:id="@+id/image_daily"
         android:layout_width="match_parent"

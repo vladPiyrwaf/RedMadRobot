@@ -90,13 +90,15 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+
                 if (adapter.getItemCount() >= totalPhoto) {
                     Toast.makeText(CollectionPhotosActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (lastVisibleItemPosition == adapter.getItemCount() - 1 && !loading) {
+                    if (lastVisibleItemPosition >= adapter.getItemCount() - 2 && !loading) {
                         Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
                                 + "getItemCount: " + (adapter.getItemCount() - 1));
                         loading = true;
+                        showProgressView();
                         addData(++pageCount);
                         Log.d("pagecount", "pageCount: " + pageCount);
                     }
@@ -121,6 +123,7 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                     public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
                         List<Photo> photos = response.body();
                         adapter.setPhotos(photos);
+                        hideProgressView();
                         loading = false;
                     }
 
@@ -150,6 +153,14 @@ public class CollectionPhotosActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    void showProgressView() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    void hideProgressView() {
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
