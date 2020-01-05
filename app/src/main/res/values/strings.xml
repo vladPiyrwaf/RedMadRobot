@@ -4,4 +4,10 @@
     <string name="search_button_name">Search</string>
     <string name="collections_button_name">Collections</string>
     <string name="collections_title">Коллекции</string>
+    <string name="menu_search">Search</string>
+    <string name="error_network_subtitle">There seems to be a problem with your internet</string>
+    <string name="error_network">Oops.</string>
+    <string name="search">Search</string>
+
+
 </resources>

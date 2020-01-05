@@ -1,77 +1,72 @@
 package com.randomize.redmadrobots.view;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TableLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.api.NetworkService;
+import com.randomize.redmadrobots.adapters.FragmentPageAdapter;
 import com.randomize.redmadrobots.models.Photo;
-import com.squareup.picasso.Picasso;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity{
 
-    private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
-
-    private ImageView imageView;
-    private Button btnSearchPhoto, btnCollections;
-    private Photo photo;
+    private ViewPager viewPager;
+    private Toolbar mToolbar;
+    private FragmentPagerAdapter fragmentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = findViewById(R.id.image_daily);
+        fragmentAdapter = new FragmentPageAdapter(getSupportFragmentManager(), 3);
+        viewPager = findViewById(R.id.view_pager);
+        mToolbar = findViewById(R.id.toolbar);
 
-        btnSearchPhoto = findViewById(R.id.btn_search_photo);
-        btnCollections = findViewById(R.id.btn_collections);
+        setSupportActionBar(mToolbar);
+        setTitle(R.string.app_name);
 
-        btnSearchPhoto.setOnClickListener(this);
-        btnCollections.setOnClickListener(this);
+        setupViewPager(viewPager);
 
-        setRequestRandomPhoto();
-    }
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
-    private void setRequestRandomPhoto(){
-
-        NetworkService.getInstance()
-                .getJSONApi()
-                .getRandomPhoto(1,1,"daily", CLIENT_ID)
-                .enqueue(new Callback<Photo>() {
-                    @Override
-                    public void onResponse(Call<Photo> call, Response<Photo> response) {
-                        Log.d("image", "onResponse: " + response.body().getUrls().getSmall());
-                        photo = response.body();
-                        Picasso.get().load(photo.getUrls().getSmall()).into(imageView);
-                        Toast.makeText(MainActivity.this, photo.getId(), Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<Photo> call, Throwable t) {
-
-                    }
-                });
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btn_collections:
-                startActivity(new Intent(MainActivity.this, CollectionsActivity.class));
-                break;
-            case R.id.btn_search_photo:
-                startActivity(new Intent(MainActivity.this, SearchPhotoActivity.class));
-                break;
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_search){
+            startActivity(new Intent(MainActivity.this, SearchPhotoActivity.class));
+            return true;
+        } else { return super.onOptionsItemSelected(item);}
+    }
+
+    private void setupViewPager(ViewPager viewPager){
+        FragmentPageAdapter fragmentPagerAdapter =
+                new FragmentPageAdapter(getSupportFragmentManager() ,3);
+        fragmentPagerAdapter.addFragment(new HomeFragment(), "Home");
+        fragmentPagerAdapter.addFragment(new CollectionsFragment(), "Collections");
+
+        viewPager.setAdapter(fragmentPagerAdapter);
+    }
+
 }

@@ -2,13 +2,14 @@ package com.randomize.redmadrobots.view;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CollectionsActivity extends AppCompatActivity {
+public class CollectionsFragment extends Fragment {
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
@@ -33,17 +34,17 @@ public class CollectionsActivity extends AppCompatActivity {
     private boolean loading = false;
     private int pageCount = 1;
 
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_collections);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.activity_collections, container, false);
 
-        progressBar = findViewById(R.id.progress_collections);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewCollections);
+        progressBar = view.findViewById(R.id.progress_collections);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewCollections);
         recyclerView.setLayoutManager(layoutManager);
 
-        photoRecyclerAdapter = new CollectionsPhotoRecyclerAdapter(this);
+        photoRecyclerAdapter = new CollectionsPhotoRecyclerAdapter(getActivity());
         recyclerView.setAdapter(photoRecyclerAdapter);
 
         firstLoadData(1);
@@ -65,6 +66,8 @@ public class CollectionsActivity extends AppCompatActivity {
                 }
             }
         });
+
+        return view;
     }
 
     private void addData(int pageCount){

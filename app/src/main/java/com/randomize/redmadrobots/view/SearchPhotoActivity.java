@@ -1,14 +1,23 @@
 package com.randomize.redmadrobots.view;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
@@ -22,13 +31,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchPhotoActivity extends AppCompatActivity {
+public class SearchPhotoActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
     private ListPhotosRecyclerAdapter adapter;
     private EditText edSearchPhotos;
-    private Button btnSearchPhotos;
+    private Toolbar mToolbar;
+
+    private boolean loading = false;
+    private int pageCount = 1;
+    private static int totalPhoto;
+    private String query;
+
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,38 +52,99 @@ public class SearchPhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search_photo);
 
         edSearchPhotos = findViewById(R.id.ed_search_photo);
-        btnSearchPhotos = findViewById(R.id.btn_search_photo);
+        progressBar = findViewById(R.id.progress_search_photo);
+        mToolbar = findViewById(R.id.toolbar_search);
+
+        edSearchPhotos.setOnEditorActionListener(this);
+
+        setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewSearchPhoto);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new ListPhotosRecyclerAdapter();
+        adapter = new ListPhotosRecyclerAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        btnSearchPhotos.setOnClickListener(new View.OnClickListener() {
+        if (edSearchPhotos.requestFocus() && edSearchPhotos.getText().toString().equals("")) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View v) {
-                if (edSearchPhotos.getText() != null) {
-                    String query = edSearchPhotos.getText().toString();
-                    NetworkService.getInstance()
-                            .getJSONApi()
-                            .searchPhotos(query, 1, 10, null, CLIENT_ID)
-                            .enqueue(new Callback<SearchResults>() {
-                                @Override
-                                public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
-                                    Log.d("Photos", "Total Results Found " + response.body().getTotal());
-                                    List<Photo> photos = response.body().getResults();
-                                    adapter.setPhotos(photos);
-                                }
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
 
-                                @Override
-                                public void onFailure(Call<SearchResults> call, Throwable t) {
-
-                                }
-                            });
+                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+                if (adapter.getItemCount() >= totalPhoto) {
+                    Toast.makeText(SearchPhotoActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (lastVisibleItemPosition == adapter.getItemCount() - 1 && !loading) {
+                        loading = true;
+                        addData(++pageCount, query);
+                        Log.d("pagecount", "pageCount: " + query);
+                    }
                 }
             }
         });
 
+    }
+
+    private void addData(final int pageCount, String query) {
+        NetworkService.getInstance()
+                .getJSONApi()
+                .searchPhotos(query, pageCount, 10, null, CLIENT_ID)
+                .enqueue(new Callback<SearchResults>() {
+                    @Override
+                    public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
+                        List<Photo> photos = response.body().getResults();
+                        progressBar.setVisibility(View.GONE);
+                        adapter.addPhotos(photos);
+                        loading = false;
+                    }
+
+                    @Override
+                    public void onFailure(Call<SearchResults> call, Throwable t) {
+
+                    }
+                });
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        query = edSearchPhotos.getText().toString();
+        if (!query.isEmpty()) {
+                NetworkService.getInstance()
+                        .getJSONApi()
+                        .searchPhotos(query, 1, 10, null, CLIENT_ID)
+                        .enqueue(new Callback<SearchResults>() {
+                            @Override
+                            public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
+                                List<Photo> photos = response.body().getResults();
+                                totalPhoto = response.body().getTotal();
+                                progressBar.setVisibility(View.GONE);
+                                adapter.clear();
+                                adapter.setPhotos(photos);
+                                loading = false;
+                            }
+
+                            @Override
+                            public void onFailure(Call<SearchResults> call, Throwable t) {
+
+                            }
+                        });
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+            onBackPressed();
+        return true;
     }
 }
