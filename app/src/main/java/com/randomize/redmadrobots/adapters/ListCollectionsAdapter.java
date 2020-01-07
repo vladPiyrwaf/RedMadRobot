@@ -1,5 +1,6 @@
 package com.randomize.redmadrobots.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -11,9 +12,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
+import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
 import com.randomize.redmadrobots.models.collections.Collection;
 import com.randomize.redmadrobots.view.CollectionPhotosActivity;
 import com.squareup.picasso.Picasso;
@@ -21,18 +24,40 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionsPhotoRecyclerAdapter
+public class ListCollectionsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Collection> collections;
-    private Context mContext;
+    private Activity activity;
+    private OnLoadMoreListener onLoadMoreListener;
 
-    private static int ITEM = 0;
-    private static int LOADING_ELEMENT = 1;
+    private boolean isLoading;
+    private int visibleThreshold = 10;
+    private int lastVisibleItem, totalItemCount;
 
-    public CollectionsPhotoRecyclerAdapter(Context context) {
+    public ListCollectionsAdapter(Activity activity, RecyclerView recyclerView) {
         this.collections = new ArrayList<>();
-        this.mContext = context;
+        this.activity = activity;
+
+        final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                totalItemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    if (onLoadMoreListener != null){
+                        onLoadMoreListener.onLoadMore();
+                    }
+                    isLoading = true;
+                }
+            }
+        });
+    }
+
+    public void setLoaded(){
+        isLoading = false;
     }
 
     public void setCollections(List<Collection> dataToAdd) {
@@ -49,46 +74,38 @@ public class CollectionsPhotoRecyclerAdapter
         notifyItemRangeInserted(position, dataToAdd.size());
     }
 
-    public void clear(){
+    public void clear() {
         this.collections.clear();
         notifyDataSetChanged();
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener){
+        this.onLoadMoreListener = onLoadMoreListener;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        if (viewType == ITEM) {
-            return new CollectionViewHolder(layoutInflater.inflate(R.layout.item_collections, parent, false));
-        } else if (viewType == LOADING_ELEMENT) {
+        return new CollectionViewHolder(layoutInflater.inflate(R.layout.item_collections, parent, false));
 
-            return new LoadingViewHolder(layoutInflater.inflate(R.layout.item_progress, parent, false));
-        }
-        return null;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == ITEM) {
+        if (holder instanceof CollectionViewHolder) {
             CollectionViewHolder viewHolder = (CollectionViewHolder) holder;
             Collection collection = collections.get(position);
             Picasso.get().load(collection.getPreviewPhotos().get(0).getUrls().getSmall()).into(viewHolder.imageView);
             viewHolder.txtTitle.setText(collection.getTitle());
             viewHolder.txtTotalPhoto.setText(collection.getTotalPhotos() + " photos");
             viewHolder.txtCuratedBy.setText("Curated by " + collection.getUser().getName());
-        } else {
-            ((LoadingViewHolder) holder).progressBar.setIndeterminate(true);
         }
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return (position == collections.size() - 1) ? LOADING_ELEMENT : ITEM;
-    }
-
-    @Override
     public int getItemCount() {
-        return collections.size();
+        return collections == null ? 0 : collections.size();
     }
 
     class CollectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -108,24 +125,14 @@ public class CollectionsPhotoRecyclerAdapter
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(mContext, CollectionPhotosActivity.class)
+            Intent intent = new Intent(activity, CollectionPhotosActivity.class)
                     .putExtra("id", collections.get(getAdapterPosition()).getId())
                     .putExtra("title", collections.get(getAdapterPosition()).getTitle())
                     .putExtra("description", collections.get(getAdapterPosition()).getDescription())
                     .putExtra("curated", collections.get(getAdapterPosition()).getUser().getName())
                     .putExtra("total_photo", collections.get(getAdapterPosition()).getTotalPhotos())
                     .putExtra("url_profile_image", collections.get(getAdapterPosition()).getUser().getProfileImage().getMedium());
-            mContext.startActivity(intent);
-        }
-    }
-
-    class LoadingViewHolder extends RecyclerView.ViewHolder {
-        public final ProgressBar progressBar;
-
-        public LoadingViewHolder(@NonNull View itemView) {
-            super(itemView);
-            progressBar = itemView.findViewById(R.id.loadmore_progress);
-            progressBar.setIndeterminate(true);
+            activity.startActivity(intent);
         }
     }
 }

@@ -18,11 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
+import com.randomize.redmadrobots.adapters.ListPhotosAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
+import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
 import com.randomize.redmadrobots.models.Photo;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -35,10 +37,10 @@ public class CollectionPhotosActivity extends AppCompatActivity {
 
     private TextView txtDescription, txtCuratedBy;
     private RecyclerView recyclerView;
-    private ListPhotosRecyclerAdapter adapter;
+    private ListPhotosAdapter photosAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private ProgressBar progressBar;
     private ImageView profileImage;
+    private ProgressBar progressBar;
 
     private long idCollection;
     private boolean loading = false;
@@ -46,6 +48,7 @@ public class CollectionPhotosActivity extends AppCompatActivity {
     private static int totalPhoto;
 
     private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,8 +65,8 @@ public class CollectionPhotosActivity extends AppCompatActivity {
         txtCuratedBy = findViewById(R.id.txt_curated);
         recyclerView = findViewById(R.id.recycler_view_collection_photos);
         swipeRefreshLayout = findViewById(R.id.swipeContainerCollectionDetail);
-        progressBar = findViewById(R.id.progress_collection_photos);
         profileImage = findViewById(R.id.image_profile);
+        progressBar = findViewById(R.id.progress_collection_photos);
 
         idCollection = getIntent().getLongExtra("id", 1);
         String title = getIntent().getStringExtra("title");
@@ -78,43 +81,62 @@ public class CollectionPhotosActivity extends AppCompatActivity {
         txtCuratedBy.setText(curated);
         Picasso.get().load(urlProfileImage).into(profileImage);
 
-        adapter = new ListPhotosRecyclerAdapter(this);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        photosAdapter = new ListPhotosAdapter(this, recyclerView);
+        recyclerView.setAdapter(photosAdapter);
+
         fetchData(1);
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        photosAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-
-                if (adapter.getItemCount() >= totalPhoto) {
-                    Toast.makeText(CollectionPhotosActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
+            public void onLoadMore() {
+                if (photosAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
                 } else {
-                    if (lastVisibleItemPosition >= adapter.getItemCount() - 2 && !loading) {
-                        Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
-                                + "getItemCount: " + (adapter.getItemCount() - 1));
-                        loading = true;
-                        showProgressView();
-                        addData(++pageCount);
-                        Log.d("pagecount", "pageCount: " + pageCount);
-                    }
+                    progressBar.setVisibility(View.VISIBLE);
+                    addData(++pageCount);
+
                 }
             }
         });
 
+
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//
+//                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+//
+//                if (photosA
+//              dapter.getItemCount() >= totalPhoto) {
+//                    Toast.makeText(CollectionPhotosActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    if (lastVisibleItemPosition >= photosA
+//                  dapter.getItemCount() - 2 && !loading) {
+//                        Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
+//                                + "getItemCount: " + (photosA
+//                              dapter.getItemCount() - 1));
+//                        loading = true;
+//                        showProgressView();
+//                        addData(++pageCount);
+//                        Log.d("pagecount", "pageCount: " + pageCount);
+//                    }
+//                }
+//            }
+//        });
+
         swipeRefreshLayout.setOnRefreshListener(() -> {
             pageCount = 1;
-            adapter.clear();
+            photosAdapter.clear();
             fetchData(1);
             swipeRefreshLayout.setRefreshing(false);
         });
     }
 
     private void fetchData(final int pageCount) {
+        progressBar.setVisibility(View.VISIBLE);
         NetworkService.getInstance()
                 .getJSONApi()
                 .getCollectionPhotos(idCollection, pageCount, 10, CLIENT_ID)
@@ -122,9 +144,9 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
                         List<Photo> photos = response.body();
-                        adapter.setPhotos(photos);
-                        hideProgressView();
-                        loading = false;
+                        photosAdapter.setPhotos(photos);
+                        photosAdapter.setLoaded();
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -141,10 +163,11 @@ public class CollectionPhotosActivity extends AppCompatActivity {
                 .enqueue(new Callback<List<Photo>>() {
                     @Override
                     public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
+
                         List<Photo> photos = response.body();
+                        photosAdapter.addPhotos(photos);
+                        photosAdapter.setLoaded();
                         progressBar.setVisibility(View.GONE);
-                        adapter.addPhotos(photos);
-                        loading = false;
                         Log.d("pages", "Page is number: " + pageCount);
                     }
 
@@ -153,14 +176,6 @@ public class CollectionPhotosActivity extends AppCompatActivity {
 
                     }
                 });
-    }
-
-    void showProgressView() {
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
-    void hideProgressView() {
-        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override

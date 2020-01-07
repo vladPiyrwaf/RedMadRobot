@@ -6,8 +6,6 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,8 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.adapters.ListPhotosRecyclerAdapter;
+import com.randomize.redmadrobots.adapters.ListPhotosAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
+import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
 import com.randomize.redmadrobots.models.Photo;
 import com.randomize.redmadrobots.models.SearchResults;
 
@@ -35,16 +34,14 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
-    private ListPhotosRecyclerAdapter adapter;
+    private ListPhotosAdapter searchAdapter;
     private EditText edSearchPhotos;
     private Toolbar mToolbar;
+    private ProgressBar progressBar;
 
-    private boolean loading = false;
     private int pageCount = 1;
     private static int totalPhoto;
     private String query;
-
-    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +49,7 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
         setContentView(R.layout.activity_search_photo);
 
         edSearchPhotos = findViewById(R.id.ed_search_photo);
-        progressBar = findViewById(R.id.progress_search_photo);
+        progressBar = findViewById(R.id.progress_search_photos);
         mToolbar = findViewById(R.id.toolbar_search);
 
         edSearchPhotos.setOnEditorActionListener(this);
@@ -67,30 +64,25 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new ListPhotosRecyclerAdapter(this);
-        recyclerView.setAdapter(adapter);
+        searchAdapter = new ListPhotosAdapter( this, recyclerView);
+        recyclerView.setAdapter(searchAdapter);
+
+        searchAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                Log.d("total_photo", "onloadmore: " + totalPhoto);
+                if (searchAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    addData(++pageCount, query);
+                }
+            }
+        });
 
         if (edSearchPhotos.requestFocus() && edSearchPhotos.getText().toString().equals("")) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-                if (adapter.getItemCount() >= totalPhoto) {
-                    Toast.makeText(SearchPhotoActivity.this, "No more photos", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (lastVisibleItemPosition == adapter.getItemCount() - 1 && !loading) {
-                        loading = true;
-                        addData(++pageCount, query);
-                        Log.d("pagecount", "pageCount: " + query);
-                    }
-                }
-            }
-        });
 
     }
 
@@ -102,9 +94,9 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
                     @Override
                     public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
                         List<Photo> photos = response.body().getResults();
+                        searchAdapter.addPhotos(photos);
+                        searchAdapter.setLoaded();
                         progressBar.setVisibility(View.GONE);
-                        adapter.addPhotos(photos);
-                        loading = false;
                     }
 
                     @Override
@@ -116,6 +108,7 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        progressBar.setVisibility(View.VISIBLE);
         query = edSearchPhotos.getText().toString();
         if (!query.isEmpty()) {
                 NetworkService.getInstance()
@@ -126,10 +119,11 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
                             public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
                                 List<Photo> photos = response.body().getResults();
                                 totalPhoto = response.body().getTotal();
+                                searchAdapter.clear();
+                                searchAdapter.setPhotos(photos);
+                                searchAdapter.setLoaded();
                                 progressBar.setVisibility(View.GONE);
-                                adapter.clear();
-                                adapter.setPhotos(photos);
-                                loading = false;
+                                Log.d("total_photo", "onResponse: " + totalPhoto);
                             }
 
                             @Override

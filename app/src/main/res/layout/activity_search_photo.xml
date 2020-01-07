@@ -39,6 +39,16 @@
         android:layout_gravity="center"
         android:visibility="visible"/>
 
+    <ProgressBar
+        android:id="@+id/progress_search_photos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSearchPhoto"
         android:layout_width="match_parent"
@@ -46,11 +56,5 @@
         android:paddingRight="8dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         />
-    <ProgressBar
-        android:id="@+id/progress_search_photo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

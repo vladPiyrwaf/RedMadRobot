@@ -16,8 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.randomize.redmadrobots.R;
-import com.randomize.redmadrobots.adapters.CollectionsPhotoRecyclerAdapter;
+import com.randomize.redmadrobots.adapters.ListCollectionsAdapter;
 import com.randomize.redmadrobots.api.NetworkService;
+import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
 import com.randomize.redmadrobots.models.collections.Collection;
 
 import java.util.List;
@@ -30,13 +31,12 @@ public class CollectionsFragment extends Fragment {
 
     private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
 
-    private CollectionsPhotoRecyclerAdapter collectionRecyclerAdapter;
-    private ProgressBar progressBar;
+    private ListCollectionsAdapter collectionAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ConstraintLayout mNetworkErrorView;
     private ConstraintLayout mNoResultView;
+    private ProgressBar progressBar;
 
-    private boolean loading = false;
     private int pageCount = 1;
 
     @Nullable
@@ -44,41 +44,51 @@ public class CollectionsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_collections, container, false);
 
-        progressBar = view.findViewById(R.id.progress_collections);
         mNetworkErrorView = view.findViewById(R.id.network_error_view);
         mNoResultView = view.findViewById(R.id.no_results_view);
+        progressBar = view.findViewById(R.id.progress_collections);
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewCollections);
         swipeRefreshLayout = view.findViewById(R.id.swipe_container_collection);
         recyclerView.setLayoutManager(layoutManager);
 
-        collectionRecyclerAdapter = new CollectionsPhotoRecyclerAdapter(getActivity());
-        recyclerView.setAdapter(collectionRecyclerAdapter);
+        collectionAdapter = new ListCollectionsAdapter(getActivity(), recyclerView);
+        recyclerView.setAdapter(collectionAdapter);
 
         firstLoadData(1);
 
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        collectionAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-
-                if (lastVisibleItemPosition == collectionRecyclerAdapter.getItemCount() - 1 && !loading) {
-                    Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
-                            + "getItemCount: " + (collectionRecyclerAdapter.getItemCount() - 1));
-                    loading = true;
-                    addData(++pageCount);
-                    Log.d("pagecount", "pageCount: " + pageCount);
-
-                }
+            public void onLoadMore() {
+                progressBar.setVisibility(View.VISIBLE);
+                addData(++pageCount);
             }
         });
 
+
+
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//
+//                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+//
+//                if (lastVisibleItemPosition == collectionAdapter.getItemCount() - 1 && !loading) {
+//                    Log.d("newlog", "lastVisibleItemPosition: " + lastVisibleItemPosition + "\n"
+//                            + "getItemCount: " + (collectionAdapter.getItemCount() - 1));
+//                    loading = true;
+//                    addData(++pageCount);
+//                    Log.d("pagecount", "pageCount: " + pageCount);
+//
+//                }
+//            }
+//        });
+
         swipeRefreshLayout.setOnRefreshListener(()->{
             pageCount = 1;
-            collectionRecyclerAdapter.clear();
+            collectionAdapter.clear();
             firstLoadData(1);
             swipeRefreshLayout.setRefreshing(false);
         });
@@ -94,16 +104,15 @@ public class CollectionsFragment extends Fragment {
                     public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                         mNetworkErrorView.setVisibility(View.GONE);
                         List<Collection> collections = response.body();
+                        collectionAdapter.addColletction(collections);
+                        collectionAdapter.setLoaded();
                         progressBar.setVisibility(View.GONE);
-                        collectionRecyclerAdapter.addColletction(collections);
-                        loading = false;
                     }
 
                     @Override
                     public void onFailure(Call<List<Collection>> call, Throwable t) {
                         mNetworkErrorView.setVisibility(View.VISIBLE);
                         mNoResultView.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
                     }
                 });
     }
@@ -116,9 +125,7 @@ public class CollectionsFragment extends Fragment {
                     @Override
                     public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                         List<Collection> collections = response.body();
-                        collectionRecyclerAdapter.setCollections(collections);
-                        progressBar.setVisibility(View.GONE);
-                        loading = false;
+                        collectionAdapter.setCollections(collections);
                     }
 
                     @Override
