@@ -7,8 +7,7 @@ import com.randomize.redmadrobots.models.Photo;
 
 import java.util.List;
 
-public class
-PhotosDiffUtilCallBack extends DiffUtil.Callback {
+public class PhotosDiffUtilCallBack extends DiffUtil.Callback {
 
     private final List<Photo> oldList;
     private final List<Photo> newList;
@@ -32,12 +31,12 @@ PhotosDiffUtilCallBack extends DiffUtil.Callback {
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         Photo oldPhoto = oldList.get(oldItemPosition);
         Photo newPhoto = newList.get(oldItemPosition);
-        return newPhoto.equals(oldPhoto);
+        return newPhoto.getId().equals(oldPhoto.getId());
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldList.get(oldItemPosition).getId().equals(newList.get(newItemPosition).getId());
+        return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
     }
 
     @Nullable
