@@ -1,39 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".view.SearchPhotoActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:animateLayoutChanges="true">
 
-        <EditText
-            android:id="@+id/ed_search_photo"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="Search"
-            android:inputType="textPersonName" />
+            android:elevation="4dp">
 
-        <Button
-            android:id="@+id/btn_search_photo"
-            android:layout_width="160dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Go" />
-    </LinearLayout>
+            <EditText
+                android:id="@+id/ed_search_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:textColorHint="#616161"
+                android:maxLines="1"/>
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <include layout="@layout/no_results_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible"/>
+
+    <include layout="@layout/network_error_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/progress_search_photos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSearchPhoto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingRight="8dp"/>
+        android:paddingRight="8dp"
+        android:visibility="invisible"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        />
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

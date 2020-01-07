@@ -4,4 +4,28 @@
     <string name="search_button_name">Search</string>
     <string name="collections_button_name">Collections</string>
     <string name="collections_title">Коллекции</string>
+    <string name="menu_search">Search</string>
+    <string name="error_network_subtitle">There seems to be a problem with your internet</string>
+    <string name="error_network">Oops.</string>
+    <string name="search">Search</string>
+
+    <string name="no_results">There\'s nothing here&#8230;</string>
+    <string name="next">Next</string>
+
+    <string name="no_more_photos">No more photos</string>
+
+    <!-- Intro -->
+    <string name="intro_welcome_title">RedMadRobots</string>
+    <string name="intro_welcome_description">Powered by Unsplash</string>
+    <string name="intro_second_title">Тестовое задание</string>
+    <string name="intro_second_description">Приложение, написанное с любовью ❤</string>
+    <string name="intro_done">Go</string>
+    <string name="intro_next">Next</string>
+    <string name="action_clear_text">Clear text</string>
+    
+    <!-- Photo detail-->>
+    <string name="width_detail_photo">Ширина: %1$s px</string>
+    <string name="height_detail_photo">Высота: %1$s px</string>
+    <string name="url_detail_photo">Оригинал фото %1$s</string>
+
 </resources>
