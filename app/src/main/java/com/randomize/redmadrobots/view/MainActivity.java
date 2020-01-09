@@ -14,19 +14,28 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.randomize.redmadrobots.collections_screen.CollectionsFragment;
+import com.randomize.redmadrobots.home_screen.HomeFragment;
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.adapters.FragmentPageAdapter;
+import com.randomize.redmadrobots.search_screen.SearchPhotosActivity;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity{
 
-    private ViewPager viewPager;
-    private Toolbar mToolbar;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.view_pager) ViewPager viewPager;
+
     private FragmentPagerAdapter fragmentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
 
         new Thread(() -> {
             SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -45,8 +54,6 @@ public class MainActivity extends AppCompatActivity{
         }).start();
 
         fragmentAdapter = new FragmentPageAdapter(getSupportFragmentManager(), 3);
-        viewPager = findViewById(R.id.view_pager);
-        mToolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(mToolbar);
         setTitle(R.string.app_name);
@@ -68,7 +75,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_search){
-            startActivity(new Intent(MainActivity.this, SearchPhotoActivity.class));
+            startActivity(new Intent(MainActivity.this, SearchPhotosActivity.class));
             return true;
         } else { return super.onOptionsItemSelected(item);}
     }

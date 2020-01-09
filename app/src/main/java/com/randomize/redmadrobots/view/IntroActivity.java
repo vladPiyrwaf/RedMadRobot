@@ -18,12 +18,15 @@ import androidx.viewpager.widget.ViewPager;
 import com.randomize.redmadrobots.R;
 import com.rd.PageIndicatorView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class IntroActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
 
-    private ImageButton btnClose;
-    private Button btnNext;
-    private ViewPager mViewPager;
-    private PageIndicatorView pageIndicatorView;
+    @BindView(R.id.activity_intro_btnClose) ImageButton btnClose;
+    @BindView(R.id.activity_intro_button) Button btnNext;
+    @BindView(R.id.activity_intro_viewPager) ViewPager mViewPager;
+    @BindView(R.id.activity_intro_indicator) PageIndicatorView pageIndicatorView;
 
     private IntroPagerAdapter mIntroPagerAdapter;
 
@@ -32,10 +35,7 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        btnClose = findViewById(R.id.activity_intro_btnClose);
-        btnNext = findViewById(R.id.activity_intro_button);
-        mViewPager = findViewById(R.id.activity_intro_viewPager);
-        pageIndicatorView = findViewById(R.id.activity_intro_indicator);
+        ButterKnife.bind(this);
 
         btnClose.setOnClickListener(this);
         btnNext.setOnClickListener(this);

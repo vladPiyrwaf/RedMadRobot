@@ -1,5 +1,6 @@
-package com.randomize.redmadrobots.view;
+package com.randomize.redmadrobots.search_screen;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -25,30 +25,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.adapters.ListPhotosAdapter;
-import com.randomize.redmadrobots.api.NetworkService;
+import com.randomize.redmadrobots.listeners.RecyclerPhotoClickListener;
+import com.randomize.redmadrobots.network.NetworkService;
 import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
 import com.randomize.redmadrobots.models.Photo;
 import com.randomize.redmadrobots.models.SearchResults;
+import com.randomize.redmadrobots.view.PhotoDetailActivity;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchPhotoActivity extends AppCompatActivity implements TextView.OnEditorActionListener, AdapterView.OnItemSelectedListener {
+public class SearchPhotosActivity extends AppCompatActivity implements SearchContract.SearchView,
+        TextView.OnEditorActionListener, AdapterView.OnItemSelectedListener {
 
-    private static final String CLIENT_ID = "e1302c9b61d67d3011bfed17ff854fa7aa0426c2adbe9c9fd18528a073476682";
+    @BindView(R.id.recycler_view_search_photo) RecyclerView recyclerView;
+    @BindView(R.id.ed_search_photo) EditText edSearchPhotos;
+    @BindView(R.id.toolbar_search) Toolbar mToolbar;
+    @BindView(R.id.progress_search_photos) ProgressBar progressBar;
+    @BindView(R.id.network_error_view) ConstraintLayout mNetworkErrorView;
+    @BindView(R.id.no_results_view) ConstraintLayout mNoResultView;
 
-    private RecyclerView recyclerView;
     private ListPhotosAdapter searchAdapter;
-    private EditText edSearchPhotos;
-    private Toolbar mToolbar;
-    private ProgressBar progressBar;
-    private ConstraintLayout mNetworkErrorView, mNoResultView;
+    private SearchPhotosPresenterImpl presenter;
 
     private int pageCount = 1;
-    private static int totalPhoto;
+    private int totalPhoto;
     private String query;
 
     private MenuItem mActionClear;
@@ -58,39 +64,35 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_photo);
 
-        edSearchPhotos = findViewById(R.id.ed_search_photo);
-        progressBar = findViewById(R.id.progress_search_photos);
-        mToolbar = findViewById(R.id.toolbar_search);
-        mNetworkErrorView = findViewById(R.id.network_error_view);
-        mNoResultView = findViewById(R.id.no_results_view);
+        ButterKnife.bind(this);
+
+        setSupportActionBar(mToolbar);
 
         edSearchPhotos.setOnEditorActionListener(this);
         edSearchPhotos.setFocusable(true);
         edSearchPhotos.requestFocus();
         edSearchPhotos.addTextChangedListener(textWatcher);
 
-        setSupportActionBar(mToolbar);
-
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 
-        recyclerView = findViewById(R.id.recyclerViewSearchPhoto);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        searchAdapter = new ListPhotosAdapter(this, recyclerView);
+        searchAdapter = new ListPhotosAdapter(recyclerPhotoClickListener, recyclerView, this);
         recyclerView.setAdapter(searchAdapter);
+
+        presenter = new SearchPhotosPresenterImpl(this, new GetNoticeSearchPhotosImpl());
 
         searchAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                Log.d("total_photo", "onloadmore: " + totalPhoto);
+                Log.d("mylog", "total: " + totalPhoto + " adapter: " + searchAdapter.getItemCount());
                 if (searchAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
                     Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
                 } else {
-                    progressBar.setVisibility(View.VISIBLE);
-                    addData(++pageCount, query);
+                    presenter.requestAddData(query, ++pageCount);
                 }
             }
         });
@@ -101,68 +103,88 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
 
     }
 
-    private void addData(final int pageCount, String query) {
-        NetworkService.getInstance()
-                .getJSONApi()
-                .searchPhotos(query, pageCount, 10, null, CLIENT_ID)
-                .enqueue(new Callback<SearchResults>() {
-                    @Override
-                    public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
-                        List<Photo> photos = response.body().getResults();
-                        searchAdapter.addPhotos(photos);
-                        searchAdapter.setLoaded();
-                        progressBar.setVisibility(View.GONE);
-                        mNetworkErrorView.setVisibility(View.GONE);
-                        mNoResultView.setVisibility(View.GONE);
-                    }
+    private RecyclerPhotoClickListener recyclerPhotoClickListener = photo -> {
+        Intent intent = new Intent(this, PhotoDetailActivity.class)
+                .putExtra("url_image", photo.getUrls().getSmall())
+                .putExtra("description", photo.getDescription())
+                .putExtra("width", photo.getWidth())
+                .putExtra("height", photo.getHeight())
+                .putExtra("url_full_image", photo.getUrls().getFull());
+        startActivity(intent);
+    };
 
-                    @Override
-                    public void onFailure(Call<SearchResults> call, Throwable t) {
-                        mNetworkErrorView.setVisibility(View.VISIBLE);
-                    }
-                });
+    @Override
+    public void setDataToRecyclerView(List<Photo> photos) {
+        searchAdapter.clear();
+        searchAdapter.setPhotos(photos);
+        searchAdapter.setLoaded();
+    }
+
+    @Override
+    public void addDataToRecyclerView(List<Photo> photos) {
+        searchAdapter.addPhotos(photos);
+        searchAdapter.setLoaded();
+    }
+
+    @Override
+    public void onResponseFailure(Throwable throwable) {
+        showNetworkError();
+        hideRecyclerView();
+        hideProgress();
     }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        recyclerView.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
         query = edSearchPhotos.getText().toString();
         if (!query.isEmpty()) {
-            NetworkService.getInstance()
-                    .getJSONApi()
-                    .searchPhotos(query, 1, 10, null, CLIENT_ID)
-                    .enqueue(new Callback<SearchResults>() {
-                        @Override
-                        public void onResponse(Call<SearchResults> call, Response<SearchResults> response) {
-                            List<Photo> photos = response.body().getResults();
-                            totalPhoto = response.body().getTotal();
-                            searchAdapter.clear();
-                            searchAdapter.setPhotos(photos);
-                            searchAdapter.setLoaded();
-                            progressBar.setVisibility(View.GONE);
-                            mNetworkErrorView.setVisibility(View.GONE);
-                            mNoResultView.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onFailure(Call<SearchResults> call, Throwable t) {
-                            mNetworkErrorView.setVisibility(View.VISIBLE);
-
-                        }
-                    });
+            presenter.requestFirstData(query);
         }
         return false;
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
+    public void setTotalPhoto(int totalPhoto) {
+        this.totalPhoto = totalPhoto;
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
+    public void showRecyclerView() {
+        recyclerView.setVisibility(View.VISIBLE);
+    }
 
+    @Override
+    public void hideRecyclerView() {
+        recyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgress() {
+        progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showNetworkError() {
+        mNetworkErrorView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideNetworkError() {
+        mNetworkErrorView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showNoResultView() {
+        mNoResultView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideNoResultView() {
+        mNoResultView.setVisibility(View.GONE);
     }
 
     @Override
@@ -199,8 +221,8 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
 
         @Override
         public void afterTextChanged(Editable editable) {
-            if (mActionClear != null){
-                if (edSearchPhotos.getText().toString().isEmpty()){
+            if (mActionClear != null) {
+                if (edSearchPhotos.getText().toString().isEmpty()) {
                     mActionClear.setVisible(false);
                 } else {
                     mActionClear.setVisible(true);
@@ -208,4 +230,14 @@ public class SearchPhotoActivity extends AppCompatActivity implements TextView.O
             }
         }
     };
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
 }

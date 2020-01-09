@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">RedMadRobots</string>
-    <string name="random_photo">Random photo to Unplash: </string>
+    <string name="app_name">RedMadApp</string>
+    <string name="photo_day">Photo of the day: </string>
     <string name="search_button_name">Search</string>
     <string name="collections_button_name">Collections</string>
     <string name="collections_title">Коллекции</string>
@@ -14,6 +14,10 @@
 
     <string name="no_more_photos">No more photos</string>
 
+    <!--Collections-->
+    <string name="collection_total_photos">%1$d photos</string>
+    <string name="collection_curated_by">Curated by %1$s</string>
+
     <!-- Intro -->
     <string name="intro_welcome_title">RedMadRobots</string>
     <string name="intro_welcome_description">Powered by Unsplash</string>
@@ -23,9 +27,8 @@
     <string name="intro_next">Next</string>
     <string name="action_clear_text">Clear text</string>
     
-    <!-- Photo detail-->>
+    <!-- Photo detail-->
     <string name="width_detail_photo">Ширина: %1$s px</string>
     <string name="height_detail_photo">Высота: %1$s px</string>
     <string name="url_detail_photo">Оригинал фото %1$s</string>
-
 </resources>

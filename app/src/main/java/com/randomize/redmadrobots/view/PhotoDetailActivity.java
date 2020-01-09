@@ -13,23 +13,24 @@ import androidx.appcompat.widget.Toolbar;
 import com.randomize.redmadrobots.R;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class PhotoDetailActivity extends AppCompatActivity {
 
-    private ImageView imageView;
-    private TextView txtDescription, txtWidth, txtHeight, txtFullSize;
-    private Toolbar mToolbar;
+    @BindView(R.id.image_detail_photo) ImageView imageView;
+    @BindView(R.id.txt_detail_photo_description) TextView txtDescription;
+    @BindView(R.id.txt_detail_photo_width) TextView txtWidth;
+    @BindView(R.id.txt_detail_photo_height) TextView txtHeight;
+    @BindView(R.id.txt_detail_photo_url_full_size) TextView txtFullSize;
+    @BindView(R.id.toolbar_photo_detail) Toolbar mToolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_detail);
 
-        mToolbar = findViewById(R.id.toolbar_photo_detail);
-        imageView = findViewById(R.id.image_detail_photo);
-        txtDescription = findViewById(R.id.txt_detail_photo_description);
-        txtWidth = findViewById(R.id.txt_detail_photo_width);
-        txtHeight = findViewById(R.id.txt_detail_photo_height);
-        txtFullSize = findViewById(R.id.txt_detail_photo_url_full_size);
+        ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
 

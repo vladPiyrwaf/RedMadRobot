@@ -1,4 +1,6 @@
-package com.randomize.redmadrobots.api;
+package com.randomize.redmadrobots.network;
+
+import com.randomize.redmadrobots.api.UnplashApi;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

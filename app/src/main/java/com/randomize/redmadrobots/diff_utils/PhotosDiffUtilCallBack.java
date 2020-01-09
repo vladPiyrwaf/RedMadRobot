@@ -1,18 +1,18 @@
-package com.randomize.redmadrobots.adapters;
+package com.randomize.redmadrobots.diff_utils;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
-import com.randomize.redmadrobots.models.collections.Collection;
+import com.randomize.redmadrobots.models.Photo;
 
 import java.util.List;
 
-public class CollectionsDiffUtilCallBack extends DiffUtil.Callback {
+public class PhotosDiffUtilCallBack extends DiffUtil.Callback {
 
-    private List<Collection> oldList;
-    private List<Collection> newList;
+    private final List<Photo> oldList;
+    private final List<Photo> newList;
 
-    public CollectionsDiffUtilCallBack(List<Collection> oldList, List<Collection> newList) {
+    public PhotosDiffUtilCallBack(List<Photo> oldList, List<Photo> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }
@@ -29,15 +29,14 @@ public class CollectionsDiffUtilCallBack extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        Collection oldCollection = oldList.get(oldItemPosition);
-        Collection newCollection = newList.get(oldItemPosition);
-        return oldCollection.getId() == newCollection.getId();
+        Photo oldPhoto = oldList.get(oldItemPosition);
+        Photo newPhoto = newList.get(oldItemPosition);
+        return newPhoto.equals(oldPhoto);
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-
-        return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
+        return oldList.get(oldItemPosition).getId().equals(newList.get(newItemPosition).getId());
     }
 
     @Nullable

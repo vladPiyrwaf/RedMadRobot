@@ -1,13 +1,10 @@
 package com.randomize.redmadrobots.adapters;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,28 +12,35 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.randomize.redmadrobots.diff_utils.CollectionsDiffUtilCallBack;
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
+import com.randomize.redmadrobots.listeners.RecyclerCollectionClickListener;
 import com.randomize.redmadrobots.models.collections.Collection;
-import com.randomize.redmadrobots.view.CollectionPhotosActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ListCollectionsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Collection> collections;
-    private Activity activity;
     private OnLoadMoreListener onLoadMoreListener;
+    private RecyclerCollectionClickListener recyclerItemClickListener;
+    private Activity activity;
 
     private boolean isLoading;
     private int visibleThreshold = 10;
     private int lastVisibleItem, totalItemCount;
 
-    public ListCollectionsAdapter(Activity activity, RecyclerView recyclerView) {
+    public ListCollectionsAdapter(RecyclerCollectionClickListener recyclerItemClickListener,
+                                  RecyclerView recyclerView, Activity activity) {
         this.collections = new ArrayList<>();
+        this.recyclerItemClickListener = recyclerItemClickListener;
         this.activity = activity;
 
         final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -98,8 +102,15 @@ public class ListCollectionsAdapter
             Collection collection = collections.get(position);
             Picasso.get().load(collection.getPreviewPhotos().get(0).getUrls().getSmall()).into(viewHolder.imageView);
             viewHolder.txtTitle.setText(collection.getTitle());
-            viewHolder.txtTotalPhoto.setText(collection.getTotalPhotos() + " photos");
-            viewHolder.txtCuratedBy.setText("Curated by " + collection.getUser().getName());
+            viewHolder.txtTotalPhoto.setText(String.format(activity.getString(R.string.collection_total_photos), collection.getTotalPhotos()));
+            viewHolder.txtCuratedBy.setText(String.format(activity.getString(R.string.collection_curated_by), collection.getUser().getName()));
+
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    recyclerItemClickListener.onItemClick(collections.get(position));
+                }
+            });
         }
     }
 
@@ -108,31 +119,16 @@ public class ListCollectionsAdapter
         return collections == null ? 0 : collections.size();
     }
 
-    class CollectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class CollectionViewHolder extends RecyclerView.ViewHolder{
 
-        public final ImageView imageView;
-        public final TextView txtTitle, txtTotalPhoto, txtCuratedBy;
+        @BindView(R.id.image_preview) ImageView imageView;
+        @BindView(R.id.txt_curated_by) TextView txtCuratedBy;
+        @BindView(R.id.txt_total_photos) TextView txtTotalPhoto;
+        @BindView(R.id.txt_title_collection) TextView txtTitle;
 
         public CollectionViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.image_preview);
-            txtTitle = itemView.findViewById(R.id.txt_title_collection);
-            txtTotalPhoto = itemView.findViewById(R.id.txt_total_photos);
-            txtCuratedBy = itemView.findViewById(R.id.txt_curated_by);
-
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(activity, CollectionPhotosActivity.class)
-                    .putExtra("id", collections.get(getAdapterPosition()).getId())
-                    .putExtra("title", collections.get(getAdapterPosition()).getTitle())
-                    .putExtra("description", collections.get(getAdapterPosition()).getDescription())
-                    .putExtra("curated", collections.get(getAdapterPosition()).getUser().getName())
-                    .putExtra("total_photo", collections.get(getAdapterPosition()).getTotalPhotos())
-                    .putExtra("url_profile_image", collections.get(getAdapterPosition()).getUser().getProfileImage().getMedium());
-            activity.startActivity(intent);
+            ButterKnife.bind(this, itemView);
         }
     }
 }

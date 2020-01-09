@@ -58,7 +58,7 @@
             android:layout_alignParentTop="true"
             android:layout_margin="8dp"
             android:padding="8dp"
-            android:background="@color/colorPrimary"
+            android:background="#FFFFFF"
             android:src="@drawable/ic_close_black_24dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

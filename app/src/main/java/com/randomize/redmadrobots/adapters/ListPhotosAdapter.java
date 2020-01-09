@@ -1,42 +1,45 @@
 package com.randomize.redmadrobots.adapters;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.randomize.redmadrobots.diff_utils.PhotosDiffUtilCallBack;
 import com.randomize.redmadrobots.R;
 import com.randomize.redmadrobots.listeners.OnLoadMoreListener;
+import com.randomize.redmadrobots.listeners.RecyclerPhotoClickListener;
 import com.randomize.redmadrobots.models.Photo;
-import com.randomize.redmadrobots.view.PhotoDetailActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class ListPhotosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Photo> photos;
     private OnLoadMoreListener onLoadMoreListener;
     private Activity activity;
+    private RecyclerPhotoClickListener clickListener;
 
     private boolean isLoading;
     private int visibleThreshold = 10;
     private int lastVisibleItem, totalItemCount;
 
 
-    public ListPhotosAdapter(Activity activity, RecyclerView recyclerView) {
+    public ListPhotosAdapter(RecyclerPhotoClickListener clickListener,
+                             RecyclerView recyclerView, Activity activity) {
         this.photos = new ArrayList<>();
+        this.clickListener = clickListener;
         this.activity = activity;
 
         final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -102,6 +105,13 @@ public class ListPhotosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
             Photo photo = photos.get(position);
             Picasso.get().load(photo.getUrls().getSmall()).into(viewHolder.imageView);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onItemClick(photos.get(position));
+                }
+            });
         }
     }
 
@@ -111,25 +121,15 @@ public class ListPhotosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return photos == null ? 0 : photos.size();
     }
 
-    class PhotoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class PhotoViewHolder extends RecyclerView.ViewHolder  {
 
-        public final ImageView imageView;
+        @BindView(R.id.image_view_photo) ImageView imageView;
 
         public PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.imageView);
-            itemView.setOnClickListener(this);
+            ButterKnife.bind(this, itemView);
         }
 
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(activity, PhotoDetailActivity.class)
-                    .putExtra("url_image", photos.get(getAdapterPosition()).getUrls().getSmall())
-                    .putExtra("description", photos.get(getAdapterPosition()).getDescription())
-                    .putExtra("width", photos.get(getAdapterPosition()).getWidth())
-                    .putExtra("height", photos.get(getAdapterPosition()).getHeight())
-                    .putExtra("url_full_image", photos.get(getAdapterPosition()).getUrls().getFull());
-            activity.startActivity(intent);
-        }
+
     }
 }

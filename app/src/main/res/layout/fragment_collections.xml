@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    tools:context="com.randomize.redmadrobots.view.CollectionsFragment">
+    tools:context="com.randomize.redmadrobots.collections_screen.CollectionsFragment">
 
     <ProgressBar
         android:id="@+id/progress_collections"
@@ -14,12 +14,6 @@
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:indeterminate="true"
         android:visibility="invisible"/>
-
-    <include layout="@layout/no_results_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
 
     <include layout="@layout/network_error_layout"
         android:layout_width="wrap_content"

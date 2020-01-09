@@ -9,8 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".view.SearchPhotoActivity"></activity>
-        <activity android:name=".view.CollectionPhotosActivity"/>
+        <activity android:name=".search_screen.SearchPhotosActivity"></activity>
+        <activity android:name=".photos_collection_screen.PhotosCollectionActivity"/>
         <activity android:name=".view.PhotoDetailActivity"/>
         <activity android:name=".view.IntroActivity" />
         <activity android:name=".view.MainActivity">
