@@ -55,12 +55,7 @@ public class CollectionsFragment extends Fragment implements CollectionsContract
         presenter = new CollectionsPresenterImpl(this, new GetNoticeInstractorCollectionImpl());
         presenter.requestFirstData();
 
-        collectionAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                presenter.requestAddData(++pageCount);
-            }
-        });
+        collectionAdapter.setOnLoadMoreListener(() -> presenter.requestAddData(++pageCount));
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             pageCount = 1;

@@ -85,15 +85,11 @@ public class SearchPhotosActivity extends AppCompatActivity implements SearchCon
 
         presenter = new SearchPhotosPresenterImpl(this, new GetNoticeSearchPhotosImpl());
 
-        searchAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                Log.d("mylog", "total: " + totalPhoto + " adapter: " + searchAdapter.getItemCount());
-                if (searchAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
-                } else {
-                    presenter.requestAddData(query, ++pageCount);
-                }
+        searchAdapter.setOnLoadMoreListener(() -> {
+            if (searchAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
+                Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
+            } else {
+                presenter.requestAddData(query, ++pageCount);
             }
         });
 

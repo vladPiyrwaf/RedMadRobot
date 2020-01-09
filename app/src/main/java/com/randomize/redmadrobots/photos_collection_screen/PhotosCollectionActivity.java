@@ -89,15 +89,12 @@ public class PhotosCollectionActivity extends AppCompatActivity implements
         presenter = new PhotosCollectionPresenterImpl(this, new GetNoticePhotosCollectionImpl());
         presenter.requestFirstData(idCollection);
 
-        photosAdapter.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (photosAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
-                } else {
-                    presenter.requestAddData(++pageCount, idCollection);
+        photosAdapter.setOnLoadMoreListener(() -> {
+            if (photosAdapter.getItemCount() >= totalPhoto && pageCount > 2) {
+                Toast.makeText(getApplicationContext(), getString(R.string.no_more_photos), Toast.LENGTH_SHORT).show();
+            } else {
+                presenter.requestAddData(++pageCount, idCollection);
 
-                }
             }
         });
 
